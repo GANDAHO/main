@@ -1,0 +1,137 @@
+---
+title: "Untitled"
+author: "GANDAHO GENIEL I.M."
+date: "2024-09-06"
+output: html_document
+---
+
+#PROJET NO1 ANALYSE DUNE BASE DE DONNEE DANS R
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+
+
+
+```
+
+## OUVERTURE DES PACKAGE ESSENTIEL
+
+```{r PACKAGE}
+library(readr)
+library(openxlsx)
+library(readxl)
+library(ggplot2)
+library(questionr)
+library(tidyverse)
+library(dplyr)
+library(RColorBrewer)
+library(haven)
+library(gridExtra)
+library(rmarkdown)
+library(flextable)
+```
+
+
+
+### Importation et analyse des données de placement
+
+```{r}
+setwd("C:/Users/gniel/OneDrive/Documents/HP ELITEBOOK/R/TRAVAUX-R/data")
+df<-read_csv("Placement_Data_Full_Class.csv")
+head(df)
+```
+
+
+```{r}
+
+
+# Nettoyage des données
+df_notna <- drop_na(df)  # Suppression des valeurs manquantes
+df_valuena <- colSums(is.na(df))  # Compte des valeurs manquantes par colonne
+df_valuena
+df_isnabysalary <- df %>% filter(is.na(salary))
+df2 <- df %>% mutate(salary = replace_na(salary, 0))
+d<-head(df2)
+flextable(d)
+
+
+# Analyse descriptive par genre
+df_gender <- df %>%
+  group_by(gender) %>%
+  summarise(Effectif = n()) %>%
+  mutate(percent = Effectif / sum(Effectif) * 100)
+df_gender
+
+df_hsc_svsgender <- df2 %>%
+  group_by(gender, hsc_s) %>%
+  summarize(Count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = hsc_s, values_from = Count, values_fill = list(Count = 0))
+df_hsc_svsgender
+
+p1 <- ggplot(df_hsc_svsgender, aes(x = gender, y = Arts, fill = gender)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  geom_text(aes(label = Arts), size = 10)
+p2 <- ggplot(df_hsc_svsgender, aes(x = gender, y = Science, fill = gender)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  geom_text(aes(label = Science), size = 10)
+p3 <- ggplot(df_hsc_svsgender, aes(x = gender, y = Commerce, fill = gender)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  geom_text(aes(label = Commerce), size = 10)
+grid.arrange(p1, p2, p3, ncol = 3)
+
+# Visualisation des données par genre
+ggplot(df_gender, aes(x = gender, y = percent, fill = gender)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Gender Repartition in the Population",
+    subtitle = "2023-2024",
+    y = "Percentage (%)",
+    x = "Gender",
+    caption = "Source: www.gnielgandaho@gmail.com"
+  ) +
+  geom_text(aes(label = percent))
+
+# Visualisation des données de placement par salaire et diplôme
+ggplot(df2, aes(x = degree_p, y = salary, colour = gender)) +
+  geom_jitter(width = 0.75, height = 0.75) +
+  facet_wrap(~gender, nrow = 2) +
+  labs(
+    title = "Salary Distribution by Degree and Gender",
+    x = "Degree Percentage",
+    y = "Salary",
+    caption = "Source: Placement_Data_Full_Class.csv"
+  )
+
+# Correlation en variable
+states <- as.data.frame(df2[, c("hsc_p", "ssc_p", "degree_p", "salary", "mba_p")])
+fit <- lm(salary ~ hsc_p + ssc_p + degree_p + mba_p, data = states)
+summary(fit)
+cor(states)
+cor.test(states$hsc_p, states$salary)
+
+# Affichage des résumés des données
+summary(df2)
+```
+
+
+```{r}
+library(flextable)
+
+ft1 <- flextable(df_gender)
+
+ft2<-flextable(df_hsc_svsgender)
+
+
+# Rendre la première ligne (nouvelle ligne) en gras et centrer
+ft1<- bold(ft1, part = "header")
+ft1
+# Rendre la première ligne (nouvelle ligne) en gras et centrer
+ft2<- bold(ft2, part = "header")
+ft2
+```
+
+
+
+
