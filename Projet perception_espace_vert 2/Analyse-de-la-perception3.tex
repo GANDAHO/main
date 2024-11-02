@@ -1,0 +1,872 @@
+---
+title: "Analyse de la perception des espace vert de la ville de Parakou par ses habitant"
+author: "GANDAHO GENIEL I.M."
+date: "2024-11-01"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#------------------------Package-------------------------------------------------------------------
+
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(readr)
+library(openxlsx)
+library(questionr)
+library(tidyverse)
+library(dplyr)
+library(RColorBrewer)
+library(ggplot2)
+library(tidyverse)
+library(ggplot2)
+library(carData)
+library(car)
+library(officer)
+library(tidyr)
+library(rmarkdown)
+library(flextable)
+library(fBasics)
+library(nnet)
+library(psych)
+library(prettyR)
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(readr)
+library(openxlsx)
+library(questionr)
+library(tidyverse)
+library(dplyr)
+library(RColorBrewer)
+library(ggplot2)
+library(tidyverse)
+library(ggplot2)
+library(carData)
+library(car)
+library(officer)
+library(tidyr)
+library(rmarkdown)
+library(flextable)
+library(fBasics)
+library(prettyR)
+library(ggcorrplot)
+library(randomForest)
+
+
+
+#------------------------Chargement de bases------------------------------------------------------------------
+
+Cartographie_et_perception_des_services_écosystémiques_all_versions_labels_2024_07_08_14_45_00_1_ <- read_excel("H:/Mon Drive/Documents/HP ELITEBOOK/R/TRAVAUX-R/data/perception_espace_vert/perception.xlsx")
+df<-Cartographie_et_perception_des_services_écosystémiques_all_versions_labels_2024_07_08_14_45_00_1_
+df2<-df%>%select(-1,-2,-3,-5,-6,-58,-59,-60,-61,-62,-63,-64,-65,-66,-67,-68,-69,-70)
+
+#------------------------Recodage des noms---------------------------------------------------------------------
+
+# Créer un vecteur contenant les nouveaux noms de variables
+new_names <- c("arrondissement", "age", "sexe", "niveau_education", "autre_education",
+               "profession", "autre_profession", "frequence_visite", "raison_non_visite",
+               "autre_raison", "espace_visite", "activite_generale", "activite_promenade",
+               "activite_sports", "activite_pique_nique", "activite_lecture",
+               "activite_observation", "activite_autre", "autre_activite",
+               "benefices_espaces_verts", "benefice_loisir_detente", "benefice_rencontre_sociale",
+               "benefice_reduction_bruit", "benefice_autre", "autre_benefice",
+               "services_ecosystemiques", "service_loisir_detente", "service_rencontre_sociale",
+               "service_reduction_bruit", "service_autre", "autre_service",
+               "evaluation_etat_espaces_verts", "plaisir_parc", "plaisir_cadre_naturel",
+               "plaisir_paysage", "plaisir_ambiance_paisible", "plaisir_equipements",
+               "plaisir_evenements", "plaisir_rencontre", "plaisir_autre", "autre_plaisir",
+               "amelioration_espaces_verts", "amelioration_bancs_aires", "amelioration_proprete",
+               "amelioration_espaces_jeux", "amelioration_securite", "amelioration_arbre_vegetation",
+               "amelioration_autre", "autre_amelioration", "participation_initiatives",
+               "implication_autorites", "implication_communaute")
+
+df3<- df2%>%rename_with(~ new_names)
+
+colnames(df3)
+labels(df3)
+
+
+
+
+
+#------------------------Recodage des modalite--------------------------------------------------------------------------------
+
+df3$espace_visite <-factor(df3$espace_visite, labels=c("BIO GUERRA","BIO GUERRA/PAPINI","BIO GUERRA/PAPINI","BIO GUERRA","COTEB","Carrefour al houda","Devant Kognonsa","Devant confort line","FORET","COTEB","COTEB/COTEB","FORET","HUBERT MAGA","HUBERT MAGA","HUBERT MAGA/COTEB","Devant confort line","PAPINI","HUBERT MAGA","PAPINI","BIO GUERRA/PAPINI","BIO GUERRA/PAPINI","COTEB","COTEB","COTEB","COTEB/FORET","HUBERT MAGA/COTEB","HUBERT MAGA/COTEB","COTEB/FORET"
+))
+df3$activite_generale<-factor(df3$activite_generale,labels = c("PROMENADE","PROMENADE/SPORT","PROMENADE/OBSERVATION","PROMENADE", "PROMENADE/LECTURE","AUTRE","PROMENADE/LECTURE","PROMENADE/SPORT/ETUDE","PROMENADE/PICNIC","PROMENADE/LECTURE/PICNIC", "PROMENADE/OBSERVATION" ,"PROMENADE/LECTURE", "PROMENADE/LECTURE/PICNIC","PROMENADE/SPORT/ETUDE/OBSERVATION","PROMENADE/LECTURE/OBSERVATION" ,"PROMENADE/LECTURE/PICNIC","PROMENADE/LECTURE/SPORT",  "PROMENADE/SPORT"))
+df3$amelioration_espaces_verts<-factor(df3$amelioration_espaces_verts,labels = c("BANCS+AIRE REPOS+PROPRETE","BANCS+AIRE REPOS+PROPRETE", "PROPRETE","BANCS+AIRE REPOS+PROPRETE+ABRE","AIRE+ABRE","BANCS+AIRE REPOS+PROPRETE+ABRE","BANCS+AIRE REPOS", "PROPRETE+ABRE" ,"BANCS+AIRE REPOS+PROPRETE+ABRE", "PROPRETE+ABRE", "ESPACE JEUX+AIRE REPOS+PROPRETE+ABRE", "BANCS+AIRE REPOS+PROPRETE+JEUX","BANCS+AIRE REPOS+PROPRETE+ABRE+JEUX","BANCS+AIRE REPOS+JEUX", "AUTRE","PROPRETE+AUTRE", "BANCS+AIRE REPOS+PROPRETE+ABRE+JEUX","PROPRETE+ABRE+JEUX","BANCS+AIRE REPOS+ABRE+JEUX","BANCS+AIRE REPOS+PROPRETE+ABRE+SECURITE","BANCS+AIRE REPOS+PROPRETE+ABRE+SECURITE","BANCS+AIRE REPOS+PROPRETE+ABRE+JEUX","BANCS+AIRE REPOS+ABRE+JEUX","BANCS+AIRE REPOS+ABRE+JEUX"))
+df3$benefices_espaces_verts<-factor(df3$benefices_espaces_verts,labels = c("DETENTE","DETENTE/RENCONTRE","RENCONTRE",  "DETENTE/RENCONTRE", "DETENTE/RENCONTRE/REDUCTION BRUIT", "RENCONTRE","DETENTE/RENCONTRE","DETENTE/RENCONTRE/REDUCTION BRUIT","DETENTE/RENCONTRE", "DETENTE/REDUCTION BRUIT", "AUTRE", "RENCONTRE", "DETENTE", "DETENTE/RENCONTRE/REDUCTION BRUIT","DETENTE","DETENTE/RENCONTRE/REDUCTION BRUIT" , "REDUCTION BRUIT","RENCONTRE/REDUCTION BRUIT"))
+
+df3$sexer<-as.numeric(factor(df3$sexe,labels = c(0,1)))
+df3$ager<-as.numeric(factor(df3$age,labels = c(0,1,2,3)))
+df3$frequence_visiter<-as.numeric(factor(df3$frequence_visite,labels = c(1,2,3,4,5,6)))
+df3$espace_visiter<-as.numeric(factor(df3$espace_visite,labels = c(0,1,2,3,4,5,6,7,8,9,10,11)))
+df3$niveau_educationr<-as.numeric(factor(df3$niveau_education,labels = c(0,1,2)))
+df3$professionr <-as.numeric(factor(df3$profession,labels = c(0,1,2,3,4)))
+df3$autreprofessionr <-as.numeric(factor(df3$autre_profession,labels = c(0,1,2,3,4)))
+df3$raison_non_visiter <-as.numeric(factor(df3$raison_non_visite,labels = c(0,1,2)))
+df3$activite_generaler <-as.numeric(factor(df3$activite_generale,labels = c(0,1,2,3,4,5,6,7,8,9,10)))
+df3$benefices_espaces_vertsr<-as.numeric(factor(df3$benefices_espaces_verts,labels = c(0,1,2,3,4,5,6,7)))
+df3$evaluation_etat_espaces_vertsr<-as.numeric(factor(df3$evaluation_etat_espaces_verts,labels = c(0,1,2,3)))
+df3$participation_initiativesr<-as.numeric(factor(df3$participation_initiatives,labels = c(0,1,2)))
+df3$implication_autoritesr<-as.numeric(factor(df3$implication_autorites,labels = c(2,0,1)))
+df3$implication_communauter<-as.numeric(factor(df3$implication_communaute,labels = c(1,0,2)))
+
+
+#------------------------Analyse descriptif-------------------------------------------------------------------------
+
+#analyse descriptif
+
+df3_numeriq<-df3[sapply(df3, is.numeric)]
+df3_numeriq<-df3_numeriq%>%select(autreprofessionr,raison_non_visiter,espace_visiter,activite_generaler,benefices_espaces_vertsr, evaluation_etat_espaces_vertsr,sexer,ager,frequence_visiter,niveau_educationr,professionr,participation_initiativesr,implication_autoritesr,implication_communauter)
+describe(df3_numeriq ,num.desc = c("mean", "median", "sd","min", "max", "valid.n"))
+
+
+
+
+
+df_frqplus<-df3%>%group_by(frequence_visite)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_frqplus %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(frequence_visite = "Total")
+df_frqplus <- bind_rows(df_frqplus, Total)
+`frequence de visite`<- flextable(df_frqplus)
+`frequence de visite`<- bold(`frequence de visite`, part = "header")
+`frequence de visite` <- align(`frequence de visite`, align = "center", part = "header")
+
+
+
+
+
+df_age<-df3%>%group_by(age)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+
+df_agen<-df3%>%group_by(age)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_agen %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(age = "Total")
+df_agen <- bind_rows(df_agen, Total)
+
+df_frqvisit<-df3%>%group_by(frequence_visite)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+
+df_raisonn<-df3%>%group_by(raison_non_visite)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+
+
+
+
+
+
+
+df_raison<-df3%>%group_by(raison_non_visite)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+df_raison<-df_raison%>%na.omit()
+Total <- df_raison %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(raison_non_visite = "Total")
+df_raison <- bind_rows(df_raison, Total)
+df_raison<-df_raison%>%na.omit()
+`raison de non visite`<- flextable(df_raison)
+`raison de non visite`<- bold(`raison de non visite`, part = "header")
+`raison de non visite`<- align(`raison de non visite`, align = "center", part = "header")
+
+
+
+
+
+
+#df_frqplus_sexe<-df3%>%group_by(frequence_visite,sexe)%>%summarize(Count=n(),.groups = 'drop')%>%pivot_wider(names_from =sexe , values_from = Count, values_fill = list(Count = 0))
+#df_frqplus_niveduc<-df3%>%group_by(frequence_visite,niveau_education)%>%summarize(Count=n(),.groups = 'drop')%>%pivot_wider(names_from =niveau_education , values_from = Count, values_fill = list(Count = 0))
+#df_frqplus_espacevisite_plus<-df3%>%group_by(frequence_visite,espace_visite)%>%summarize(Count=n(),.groups = 'drop')%>%pivot_wider(names_from =espace_visite , values_from = Count, values_fill = list(Count = 0))
+
+
+
+
+
+
+df_niveduc<-df3%>%group_by(niveau_education)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_niveduc %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(niveau_education = "Total")
+df_niveduc <- bind_rows(df_niveduc, Total)
+`niveau de education des enqueter`<- flextable(df_niveduc)
+`niveau de education des enqueter`<- bold(`niveau de education des enqueter`, part = "header")
+`niveau de education des enqueter` <- align(`niveau de education des enqueter`, align = "center", part = "header")
+
+
+
+
+
+df_sexen<-df3%>%group_by(sexe)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+
+
+df_sexe<-df3%>%group_by(sexe)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_sexe %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(sexe = "Total")
+df_sexe <- bind_rows(df_sexe, Total)
+sexe<- flextable(df_sexe)
+sexe<- bold(sexe, part = "header")
+sexe <- align(sexe, align = "center", part = "header")
+
+
+
+
+
+
+df_profession<-df3%>%group_by(profession)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_profession %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(profession = "Total")
+df_profession <- bind_rows(df_profession, Total)
+profession<- flextable(df_profession)
+profession<- bold(profession, part = "header")
+profession <- align(profession, align = "center", part = "header")
+
+
+
+
+
+
+df_autreprofession<-df3%>%group_by(autre_profession)%>%summarise(Effectif=n())
+
+df_visiten<-df3%>%group_by(espace_visite)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+df_visiten<-df_visiten%>%na.omit()
+
+df_visite<-df3%>%group_by(espace_visite)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_visite %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(espace_visite = "Total")
+df_visite <- bind_rows(df_visite, Total)
+
+
+
+
+
+df_activite_generale<-df3%>%group_by(activite_generale)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_activite_generale %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(activite_generale = "Total")
+df_activite_generale <- bind_rows(df_activite_generale, Total)
+`activiite en generale`<- flextable(df_activite_generale)
+`activiite en generale`<- bold(`activiite en generale`, part = "header")
+`activiite en generale` <- align(`activiite en generale`, align = "center", part = "header")
+
+
+
+
+
+
+df_beneficeepacevertr<-df3%>%group_by(benefices_espaces_verts)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_beneficeepacevertr %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(benefices_espaces_verts = "Total")
+df_beneficeepacevertr <- bind_rows(df_beneficeepacevertr, Total)
+`benefices des espace vert`<- flextable(df_beneficeepacevertr)
+`benefices des espace vert`<- bold(`benefices des espace vert`, part = "header")
+`benefices des espace vert`<- align(`benefices des espace vert`, align = "center", part = "header")
+
+
+
+
+
+
+
+df_evaluation<-df3%>%group_by(evaluation_etat_espaces_verts)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_evaluation %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(evaluation_etat_espaces_verts = "Total")
+df_evaluation <- bind_rows(df_evaluation, Total)
+`evaluation des espace vert`<- flextable(df_evaluation)
+`evaluation des espace vert`<- bold(`evaluation des espace vert`, part = "header")
+`evaluation des espace vert`<- align(`evaluation des espace vert`, align = "center", part = "header")
+
+
+
+
+
+
+
+
+df_amelioration<-df3%>%group_by(amelioration_espaces_verts)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_amelioration %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(amelioration_espaces_verts = "Total")
+df_amelioration <- bind_rows(df_amelioration, Total)
+
+
+
+
+
+
+
+df_participation_initi<-df3%>%group_by(participation_initiatives)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_participation_initi %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(participation_initiatives = "Total")
+df_participation_initi <- bind_rows(df_participation_initi, Total)
+`participation au initiative`<- flextable(df_participation_initi)
+`participation au initiative`<- bold(`participation au initiative`, part = "header")
+`participation au initiative`<- align(`participation au initiative`, align = "center", part = "header")
+
+
+
+
+
+
+
+df_implication_auto<-df3%>%group_by(implication_autorites)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_implication_auto %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(implication_autorites = "Total")
+df_implication_auto <- bind_rows(df_implication_auto, Total)
+`implication autauriter`<- flextable(df_implication_auto)
+`implication autauriter`<- bold(`implication autauriter`, part = "header")
+`implication autauriter`<- align(`implication autauriter`, align = "center", part = "header")
+
+
+
+
+
+
+df_implication_communaute<-df3%>%group_by(implication_communaute)%>%summarise(Effectif=n())%>%mutate(`Pourcentage%` =round (((Effectif/102)*100),2))
+Total <- df_implication_communaute %>%
+  summarize(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(implication_communaute = "Total")
+df_implication_communaute <- bind_rows(df_implication_communaute, Total)
+`implication communauter`<- flextable(df_implication_communaute)
+`implication communauter`<- bold(`implication communauter`, part = "header")
+`implication communauter`<- align(`implication communauter`, align = "center", part = "header")
+
+
+
+
+
+
+#df_sexe_espacevisite_plus<-df3%>%group_by(espace_visite,sexe)%>%summarize(Count=n(),.groups = 'drop')%>%pivot_wider(names_from =sexe , values_from = Count, values_fill = list(Count = 0))
+labels(df3)
+
+
+
+#------------------------Graphique------------------------------------------------------------------------------------
+
+library(ggplot2)
+
+`espace visite`<-ggplot(data = df_visiten, aes(x =Effectif, y = reorder(espace_visite, Effectif), fill = espace_visite)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = Effectif), position = position_stack(vjust = 0.5), color = "black") +
+  labs(
+    y = "Espace visite",
+    x = "Effectifs",
+    title = "Graphique2",
+    subtitle = "Representation des espaces vert visite ",
+    caption = "Source : Enquete sur les habitant a parakou"
+    
+  )
+
+age<-ggplot(data = df_age, aes(x = `Pourcentage%`, y = reorder(age, Effectif), fill =factor(age))) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = `Pourcentage%`), position = position_stack(vjust = 0.5), color = "black") +
+  labs(
+    y = "Age",
+    x = "Pourcentage %",
+    title = "Graphique3",
+    subtitle = "Repartition de par age des participants a l'enquete",
+    caption = "Source : Enquete sur les habitant a parakou"
+    
+  )
+
+`repartion par sexe`<-ggplot(data = df_sexen, aes(x = sexe, y = `Pourcentage%`, fill =factor(sexe))) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = `Pourcentage%`), position = position_stack(vjust = 0.5), color = "black") +
+  labs(
+    y = "Pourcentage %",
+    x = "Sexe",
+    title = "Graphique1",
+    subtitle = "Repartition de par sexe des participants a l'enquete",
+    caption = "Source : Enquete sur les habitant a parakou"
+    
+  )
+
+corr_matrix <- stats::cor(df3_numeriq, use = "pairwise.complete.obs") #test statistiques##Calcul de la matrice de corrélation uniquement pour any(is.na(corr_matrix))  # Vérifie les NA
+any(is.nan(corr_matrix)) # Vérifie les NaN
+any(is.infinite(corr_matrix)) # Vérifie les valeurs Inf
+corr_matrix[is.na(corr_matrix)] <- 0
+corr_matrix[is.nan(corr_matrix)] <- 0
+
+`correlation entre variable`<-ggcorrplot(corr_matrix, 
+           hc.order = FALSE, # Désactive le clustering
+           type = "full", 
+           lab = TRUE,
+           lab_size = 3,
+           colors = c("blue", "white", "red"),
+           title = "Heatmap des Corrélations",
+           ggtheme = theme_minimal()) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+
+#------------------------Test statiatique----------------------------------------------------------------------
+
+correlationtest<-cor.test(df3$espace_visiter, df3$frequence_visiter,
+         method = c("pearson", "kendall", "spearman"),
+         exact = NULL, conf.level = 0.95, continuity = FALSE)
+correlationTest(df3$espace_visiter,df3$frequence_visiter, "kendall")
+cor.test (df3$espace_visiter,df3$frequence_visiter)
+
+
+# Modèle de régression logistique multinomiale
+#model <- multinom(espace_visite ~ frequence_visite + activite_generale, data = df3)
+#summary(model)
+
+#model <- multinom(espace_visite ~ frequence_visiter, data = df3)
+
+#new_data <- data.frame(
+#espace_visite<-df3$espace_visite,frequence_visiter<-df3$frequence_visiter
+#)
+
+#predictions_new <- predict(model, newdata = new_data)
+#predictions_new
+
+```
+
+## statistique descriptif
+### Interpretation des moyenne Age
+Moyenne etant de **1.73** il revient ains de dire que le individue enquete sont majoritairement constituer de personne age de **18 ans a 30 ans** 
+
+### Interpretation des moyenne sexe
+Moyenne etant de **1.51** il revient ains de dire que le individue enquete sont majoritairement constituer d' **Hommes** 
+
+### Interpretation des moyenne frequence de visite.
+Moyenne etant de **3.39** et proche de la mediane cela suggere donc que la majoriter des enqueter visite de maniere moderer les espace vert  
+
+```{r statdesc}
+describe(df3_numeriq ,num.desc = c("mean","sd","min", "max", "valid.n"))
+```
+
+## Repartition Sexuel
+l'analyse de graphique et du graphique ci dessous montre que la population enquete composer de 102 individu est compose de 50 femme soit un pourcentage de 49.02 % et 52 Hommes pour un pourcentage de 50.98 % 
+```{r sexe}
+sexe
+```
+
+```{r repartition par sexe}
+`repartion par sexe`
+```
+
+## Repartition par Age
+la population enqueter majoritairement contituer de d'individue age de 18 ans a 45 ans soit un pourcentage de **50.98 %** age de 18 a 30 ans et **34.31 %** age de 31 a 45 ans. Enfin minoritairement composer pour un pourcentage de **8.82 %** pour les individue de moins de 18 ans et **5.88 %** pour ceux age de 46 ans a 60 ans
+```{r Age}
+age
+```
+
+## Repartion des espace visiter dans la ville de parakou
+De lanalyse de ce graphique il peut etre retenue que les preference des enqueter en terme de d'espace vert se tourne beaucoup plus plus vers 3 espace vert que sont **BIO GUERRA** (19/102 enqueter), **PAPINI** (16/102 enqueter) et **COTEB** (12/102 enqueter) on peut donc deduire que celle ci ont plus d'afluence que les autre espace vert. 
+
+Il est important notifier que COTEB en terme de preference peut etre associer a d'autre d'autre espace vert telle que HUBERT MAGA(3/102 enqueter), FORET(3/102 enqueter) de meme que BIO GUERRE souvent associer a PAPINI(5/102 enqueter) 
+
+```{r espace visiter}
+`espace visite`
+```
+
+## Frequence de visite
+
+### Interprétation des Fréquences de Visite
+
+1. **Jamais (31,37%)** :
+   - **Effectif** : 32 personnes
+   - **Interprétation** : Un peu plus d'un tiers des répondants déclarent ne jamais visiter les espaces verts. Cela peut indiquer un manque d'intérêt, d'accès ou de sensibilisation sur les bénéfices des espaces verts.
+
+2. **Plusieurs fois par semaine (7,84%)** :
+   - **Effectif** : 8 personnes
+   - **Interprétation** : Une très faible proportion de répondants visite les espaces verts plusieurs fois par semaine, ce qui peut suggérer que ces espaces ne sont pas perçus comme des lieux attrayants ou accessibles.
+
+3. **Rarement (15,69%)** :
+   - **Effectif** : 16 personnes
+   - **Interprétation** : Ce groupe représente une proportion modérée. Les raisons peuvent inclure des contraintes de temps ou des alternatives perçues comme plus attrayantes.
+
+4. **Tous les jours (2,94%)** :
+   - **Effectif** : 3 personnes
+   - **Interprétation** : Très peu de personnes visitent les espaces verts quotidiennement, ce qui souligne peut-être un manque de temps ou de proximité.
+
+5. **Une fois par mois (19,61%)** :
+   - **Effectif** : 20 personnes
+   - **Interprétation** : Une proportion significative de répondants se rend aux espaces verts au moins une fois par mois, ce qui indique une certaine utilisation, mais pas de manière régulière.
+
+6. **Une fois par semaine (22,55%)** :
+   - **Effectif** : 23 personnes
+   - **Interprétation** : Cette catégorie regroupe une part notable des répondants, ce qui peut refléter un usage modéré des espaces verts. Cela montre que certains individus intègrent ces visites dans leur routine hebdomadaire.
+
+### Conclusion
+Le tableau des fréquences de visite met en lumière plusieurs comportements. **Près de 31,37% des répondants n'utilisent pas du tout les espaces verts**, tandis qu'une part significative (22,55%) les visite une fois par semaine. Cela indique qu'il pourrait être bénéfique de mener des actions de sensibilisation et d'amélioration des infrastructures pour encourager une fréquentation plus élevée des espaces verts.
+
+
+```{r frequence de visite}
+`frequence de visite`
+```
+
+## Niveau education
+
+### Interprétation des Niveaux d'Éducation
+
+1. **Primaire (2,94%)** :
+   - **Effectif** : 3 personnes
+   - **Interprétation** : Une très faible proportion des répondants (moins de 3%) a atteint le niveau primaire. Cela peut indiquer que la population ciblée est majoritairement composée de personnes ayant poursuivi leur éducation au-delà de ce niveau.
+
+2. **Secondaire (43,14%)** :
+   - **Effectif** : 44 personnes
+   - **Interprétation** : Près de 43% des répondants ont un niveau d'éducation secondaire. Cela représente une part importante et pourrait indiquer que le secondaire est un niveau d'éducation relativement courant parmi cette population.
+
+3. **Universitaire (53,92%)** :
+   - **Effectif** : 55 personnes
+   - **Interprétation** : Plus de la moitié des répondants (53,92%) ont un niveau d'éducation universitaire. Cela suggère que la population est majoritairement instruite et pourrait avoir des attentes élevées en matière de services et d'aménagements.
+
+### Conclusion
+Les données sur le niveau d'éducation révèlent une majorité de répondants ayant un niveau universitaire (53,92%), suivi par ceux ayant un niveau secondaire (43,14%). **La faible proportion de personnes ayant un niveau primaire (2,94%) suggère que les répondants ont généralement ete a l'ecole**. 
+
+
+```{r niveau deducation}
+`niveau de education des enqueter`
+```
+
+## Profession
+
+### Interprétation des Professions
+
+1. **Agriculteur (6,86%)** :
+   - **Effectif** : 7 personnes
+   - **Interprétation** : Une petite proportion des répondants se décrit comme agriculteur. Cela pourrait indiquer que l'agriculture n'est pas la principale source de revenu dans cette population ou qu'elle est moins représentée dans l'échantillon.
+
+2. **Autre (préciser) (21,57%)** :
+   - **Effectif** : 22 personnes
+   - **Interprétation** : Une proportion significative de répondants (21,57%) a choisi la catégorie "Autre". Cela pourrait suggérer une diversité de professions, qui pourrait inclure des métiers moins courants ou des professions non spécifiées. Une analyse qualitative de cette catégorie pourrait fournir des informations précieuses.
+
+3. **Commerçant (22,55%)** :
+   - **Effectif** : 23 personnes
+   - **Interprétation** : Les commerçants représentent une part importante (22,55%) de la population. Cela peut indiquer une économie locale dynamique où le commerce joue un rôle crucial.
+
+4. **Fonctionnaire (18,63%)** :
+   - **Effectif** : 19 personnes
+   - **Interprétation** : Une proportion notable de répondants (18,63%) est fonctionnaire, ce qui peut refléter une structure d'emploi dans le secteur public relativement importante dans la communauté.
+
+5. **Étudiant (30,39%)** :
+   - **Effectif** : 31 personnes
+   - **Interprétation** : La plus grande catégorie est celle des étudiants, représentant 30,39% des répondants. Cela indique une forte concentration de jeunes en formation, ce qui peut influencer les attentes en matière de services et d'infrastructures.
+
+### Conclusion
+La répartition professionnelle montre une diversité parmi les répondants, avec une majorité d'étudiants (30,39%) suivie par des commerçants (22,55%) et d'autres professions (21,57%). **L'absence d'une forte représentation des agriculteurs pourrait suggérer un urbanisme plus développé ou un changement dans les dynamiques économiques locales.**
+
+
+```{r profession}
+profession
+```
+
+## Activite en generale
+
+### Interprétation des Activités Générales
+
+1. **PROMENADE (2,94%)** :
+   - **Effectif** : 3 personnes
+   - **Interprétation** : Une faible proportion des répondants se consacre uniquement à la promenade. Cela peut indiquer que cette activité est souvent combinée avec d'autres, plutôt que pratiquée isolément.
+
+2. **PROMENADE/SPORT (1,96%)** :
+   - **Effectif** : 2 personnes
+   - **Interprétation** : Encore une fois, très peu de répondants (moins de 2%) pratiquent la promenade combinée avec le sport. Cela pourrait refléter un faible intérêt pour cette combinaison d'activités.
+
+3. **PROMENADE/OBSERVATION (2,94%)** :
+   - **Effectif** : 3 personnes
+   - **Interprétation** : Cette combinaison est également peu courante, suggérant que les répondants préfèrent des activités plus interactives ou engagées.
+
+4. **PROMENADE/LECTURE (34,31%)** :
+   - **Effectif** : 35 personnes
+   - **Interprétation** : Cette catégorie représente la majorité des répondants (34,31%). Cela indique que la lecture est une activité populaire parmi ceux qui fréquentent les espaces verts, peut-être en raison de l'environnement calme et relaxant qu'ils offrent.
+
+5. **AUTRE (5,88%)** :
+   - **Effectif** : 6 personnes
+   - **Interprétation** : Une petite portion des répondants a mentionné des activités non spécifiées, ce qui pourrait refléter une variété d'autres loisirs ou pratiques.
+
+6. **PROMENADE/SPORT/ETUDE (3,92%)** :
+   - **Effectif** : 4 personnes
+   - **Interprétation** : Cette combinaison montre un intérêt pour une approche multidisciplinaire, mais reste minoritaire.
+
+7. **PROMENADE/PICNIC (0,98%)** :
+   - **Effectif** : 1 personne
+   - **Interprétation** : La faible représentation des pique-niques pourrait indiquer un manque d'infrastructure ou d'espace approprié pour cette activité.
+
+8. **PROMENADE/LECTURE/PICNIC (11,76%)** :
+   - **Effectif** : 12 personnes
+   - **Interprétation** : Une proportion intéressante de répondants combine lecture et pique-nique, suggérant que certains fréquentent les espaces verts pour des moments de détente.
+
+9. **PROMENADE/SPORT/ETUDE/OBSERVATION (1,96%)** et autres combinaisons :
+   - **Interprétation** : Les activités combinant plusieurs éléments sont très peu représentées, ce qui pourrait indiquer que les répondants préfèrent se concentrer sur une ou deux activités à la fois.
+
+### Conclusion
+Les résultats montrent que la **lecture** en promenade est l'activité la plus courante (34,31%), suivie par des combinaisons moins fréquentes d'activités. **Les pique-niques et les activités combinant plusieurs éléments sont peu pratiqués, ce qui pourrait signaler un besoin d'infrastructure ou d'espaces adaptés pour ces loisirs.**
+
+```{r activiite en generale}
+`activiite en generale`
+```
+
+## Benefice des espaces vert
+
+### Interprétation des Bénéfices des Espaces Verts
+
+1. **Détente (5,88%)** :
+   - **Effectif** : 6 personnes
+   - **Interprétation** : Une faible proportion de répondants mentionne la détente comme unique bénéfice. Cela pourrait indiquer que, même si la détente est appréciée, elle est souvent associée à d'autres activités ou bénéfices.
+
+2. **Détente/Rencontre (27,45%)** :
+   - **Effectif** : 28 personnes
+   - **Interprétation** : Ce groupe représente la majorité des répondants. Cela suggère que les usagers des espaces verts perçoivent ces lieux principalement comme des endroits pour se détendre tout en socialisant, soulignant l'importance des interactions sociales dans ces environnements.
+
+3. **Rencontre (8,82%)** :
+   - **Effectif** : 9 personnes
+   - **Interprétation** : Un pourcentage significatif des répondants considère les espaces verts comme des lieux de rencontre. Cependant, ce chiffre est inférieur à ceux qui combinent détente et rencontre, indiquant que la détente est un facteur clé lors des rencontres.
+
+4. **Détente/Rencontre/Réduction du bruit (6,86%)** :
+   - **Effectif** : 7 personnes
+   - **Interprétation** : Cette combinaison souligne que certains usagers voient les espaces verts comme des refuges non seulement pour se détendre et rencontrer des gens, mais aussi pour échapper au bruit environnant.
+
+5. **Détente/Réduction du bruit (0,98%)** :
+   - **Effectif** : 1 personne
+   - **Interprétation** : Très peu de répondants voient uniquement la détente et la réduction du bruit comme bénéfices. Cela peut indiquer que ces avantages sont perçus comme moins prioritaires par rapport à d'autres.
+
+6. **Autre (14,71%)** :
+   - **Effectif** : 15 personnes
+   - **Interprétation** : Une proportion notable de répondants a mentionné d'autres bénéfices non spécifiés. Cela pourrait refléter la diversité des expériences et des préférences des usagers.
+
+7. **Réduction du bruit (0,98%)** :
+   - **Effectif** : 1 personne
+   - **Interprétation** : Seul un répondant a identifié la réduction du bruit comme un bénéfice distinct, ce qui pourrait suggérer que, bien que cela soit important, ce n'est pas le principal attrait des espaces verts pour la plupart des usagers.
+
+8. **Rencontre/Réduction du bruit (2,94%)** :
+   - **Effectif** : 3 personnes
+   - **Interprétation** : Quelques répondants voient une combinaison de rencontres et de réduction du bruit comme un bénéfice, soulignant une possible recherche d'un environnement calme pour socialiser.
+
+### Conclusion
+Les résultats montrent que les **usagers des espaces verts valorisent principalement la combinaison de la détente et des rencontres (27,45%)**. Les autres bénéfices, comme la réduction du bruit, sont moins souvent cités comme des priorités.
+
+```{r benefice espace vert}
+`benefices des espace vert`
+```
+
+## Raison de non visite
+
+### Interprétation des Raisons de Non-Visite des Espaces Verts
+
+1. **Absence d'espace vert près de chez moi (12,75%)** :
+   - **Effectif** : 13 personnes
+   - **Interprétation** : Une proportion significative de répondants indique que l'absence d'espaces verts à proximité de leur domicile est un facteur limitant. Cela souligne l'importance de la localisation des espaces verts pour encourager leur utilisation. Les planificateurs pourraient envisager d'améliorer l'accès en créant de nouveaux espaces verts dans des zones moins desservies.
+
+2. **Manque d'intérêt (3,92%)** :
+   - **Effectif** : 4 personnes
+   - **Interprétation** : Un petit nombre de répondants ne montrent pas d'intérêt pour les espaces verts. Cela pourrait refléter une méconnaissance des bénéfices des espaces verts ou un manque de motivation. Des initiatives de sensibilisation pourraient être utiles pour encourager une plus grande appréciation des avantages associés à ces espaces.
+
+3. **Manque de temps (14,71%)** :
+   - **Effectif** : 15 personnes
+   - **Interprétation** : Cette raison est la plus fréquemment citée parmi celles fournies. Un manque de temps peut être un obstacle majeur à la visite des espaces verts, indiquant que les usagers sont souvent occupés par d'autres engagements. Cela peut également refléter un style de vie urbain où les horaires sont chargés. Les planificateurs pourraient envisager d'organiser des événements à des moments qui conviennent mieux aux résidents pour faciliter leur participation.
+
+### Conclusion
+Les résultats montrent que **le manque de temps (14,71%)** est la principale raison citée pour ne pas visiter les espaces verts, suivie de l'absence d'espace vert à proximité (12,75%). Le manque d'intérêt représente une préoccupation mineure.
+
+```{r raison non visite}
+`raison de non visite`
+```
+
+## Evaluation Espace vert
+
+### Interprétation de l'Évaluation de l'État des Espaces Verts
+
+1. **État Moyen (53,92%)** :
+   - **Effectif** : 55 personnes
+   - **Interprétation** : La majorité des répondants (plus de la moitié) évaluent l'état des espaces verts comme moyen. Cela indique qu'il y a des attentes non satisfaites concernant la qualité et l'entretien de ces espaces. Les planificateurs devraient prendre cela en compte en mettant en œuvre des actions d'amélioration pour rehausser la qualité des espaces verts et répondre aux attentes des usagers.
+
+2. **État Bon (10,78%)** :
+   - **Effectif** : 11 personnes
+   - **Interprétation** : Un nombre relativement faible d'usagers considère l'état des espaces verts comme bon. Cela suggère que bien qu'il y ait quelques espaces qui répondent aux attentes, il existe un besoin général d'amélioration. Les responsables devraient identifier ces espaces et examiner ce qui contribue à leur bonne évaluation pour éventuellement reproduire ces caractéristiques ailleurs.
+
+3. **État Mauvais (2,94%)** :
+   - **Effectif** : 3 personnes
+   - **Interprétation** : Seule une petite proportion des répondants évalue l'état des espaces verts comme mauvais. Cela pourrait indiquer des espaces spécifiques qui nécessitent une attention immédiate en termes de nettoyage, de maintenance ou de sécurité.
+
+4. **État Très Bon (0,98%)** :
+   - **Effectif** : 1 personne
+   - **Interprétation** : Très peu d'usagers (1 personne) jugent l'état des espaces verts comme très bon. Cela souligne que, malgré quelques exemples positifs, il y a une perception généralisée que la majorité des espaces verts pourrait être nettement améliorée.
+
+### Conclusion
+La majorité des répondants évalue l'état des espaces verts comme moyen (53,92%), ce qui souligne des opportunités d'amélioration significatives. Les espaces jugés bons sont peu nombreux, tandis que quelques-uns sont considérés comme mauvais.
+
+```{r evaluation}
+`evaluation des espace vert`
+```
+
+## Participation initiative
+### Interprétation de la Participation aux Initiatives
+
+1. **Peut-être (72,55%)** :
+   - **Effectif** : 74 personnes
+   - **Interprétation** : Une large majorité des répondants (72,55%) indique une position indécise quant à leur participation aux initiatives. Cela peut refléter un intérêt potentiel mais aussi un manque d'informations ou de clarté sur la nature de ces initiatives. Les planificateurs devraient s'interroger sur les raisons de cette hésitation, notamment en évaluant les obstacles perçus ou le manque de sensibilisation.
+
+2. **Oui (24,51%)** :
+   - **Effectif** : 25 personnes
+   - **Interprétation** : Environ un quart des répondants exprime un intérêt clair pour participer aux initiatives. Cela représente une opportunité pour les planificateurs d'engager activement ces individus en leur fournissant des rôles concrets et en les impliquant dans la planification et l'exécution des initiatives.
+
+3. **Non (2,94%)** :
+   - **Effectif** : 3 personnes
+   - **Interprétation** : Un faible nombre de répondants (2,94%) refuse catégoriquement de participer aux initiatives. Cela pourrait indiquer une désaffection ou une perception négative envers les initiatives en cours. Il est essentiel pour les planificateurs de comprendre les raisons de cette position afin de rectifier ou d'améliorer les initiatives proposées.
+
+### Conclusion
+La majorité des répondants se trouve dans une position intermédiaire d'incertitude, avec un intérêt potentiel pour la participation, tandis qu'un quart est prêt à s'engager. Cela souligne la nécessité d'une stratégie de communication et d'engagement plus ciblée.
+
+```{r participation}
+`participation au initiative`
+```
+
+## Implication Autoriter
+### Interprétation de l'Implication des Autorités
+
+1. **Non (62,75%)** :
+   - **Effectif** : 64 personnes
+   - **Interprétation** : Une majorité écrasante des répondants (62,75%) estime que les autorités ne sont pas impliquées dans les initiatives. Cela peut indiquer un manque de visibilité ou de communication concernant le rôle des autorités dans ces projets, ou une perception que leur soutien est insuffisant. Il serait crucial d'explorer les raisons derrière cette perception, car une faible implication des autorités peut nuire à la légitimité et au succès des initiatives.
+
+2. **Oui (35,29%)** :
+   - **Effectif** : 36 personnes
+   - **Interprétation** : Un tiers des répondants reconnaît une certaine forme d'implication des autorités. Cela peut signifier que, bien que leur présence soit notée, il pourrait y avoir un besoin d'augmenter cette implication pour renforcer la confiance et l'engagement de la communauté. Les planificateurs devraient identifier les types d'implications perçues et les occasions où les autorités ont été actives pour mieux promouvoir ces actions.
+
+3. **Ne sait pas (1,96%)** :
+   - **Effectif** : 2 personnes
+   - **Interprétation** : Un nombre très faible de répondants (1,96%) ne sait pas si les autorités sont impliquées. Cela peut indiquer un manque de sensibilisation ou d'information sur le rôle des autorités dans les initiatives. Les planificateurs devraient viser à améliorer la communication autour de l'engagement des autorités pour éclairer ceux qui ne sont pas informés.
+
+### Conclusion
+Les résultats montrent un fort sentiment que les autorités sont absentes des initiatives, ce qui pourrait poser des défis à l'engagement communautaire. 
+
+### Interprétation de l'Implication de la Communauté
+
+1. **Peu impliquée (60,78%)** :
+   - **Effectif** : 62 personnes
+   - **Interprétation** : Une majorité significative des répondants (60,78%) estime que la communauté est peu impliquée dans les initiatives. Cela pourrait refléter un manque d'engagement, d'information ou d'opportunités pour que les membres de la communauté participent activement. Les planificateurs doivent identifier les obstacles qui empêchent une plus grande implication et développer des stratégies pour encourager une participation plus active.
+
+2. **Impliquée (32,35%)** :
+   - **Effectif** : 33 personnes
+   - **Interprétation** : Environ un tiers des répondants (32,35%) se sentent impliqués dans les initiatives. Cela indique qu'il existe un groupe de membres de la communauté qui sont prêts à participer et s'engager. Les planificateurs devraient capitaliser sur cet intérêt en offrant des opportunités pour que ces individus prennent des rôles de leadership ou de facilitation au sein des initiatives.
+
+3. **Pas du tout impliquée (6,86%)** :
+   - **Effectif** : 7 personnes
+   - **Interprétation** : Un petit nombre de répondants (6,86%) indique que la communauté n'est pas du tout impliquée. Bien que ce chiffre soit faible, il est essentiel de comprendre les raisons derrière cette position afin d'ajuster les initiatives et d'adresser les préoccupations spécifiques de ces membres.
+
+### Conclusion
+Les résultats soulignent une perception dominante que la communauté est peu impliquée dans les initiatives, ce qui pourrait constituer un défi pour l'efficacité de ces projets.
+
+```{r autoriter}
+`implication autauriter`
+`implication communauter`
+```
+
+## Benefice espace vert
+### Interprétation des Bénéfices des Espaces Verts
+
+1. **Détente (5,88%)** :
+   - **Effectif** : 6 personnes
+   - **Interprétation** : Une petite proportion des répondants considère que le principal bénéfice des espaces verts est la détente. Cela peut indiquer que bien que la détente soit reconnue comme un avantage, elle n'est pas perçue comme le bénéfice le plus important, ce qui peut signaler une opportunité d'amélioration dans la promotion de cet aspect.
+
+2. **Détente/Rencontre (27,45%)** :
+   - **Effectif** : 28 personnes
+   - **Interprétation** : Près d'un tiers des répondants (27,45%) perçoivent les espaces verts comme des lieux de détente et de rencontre. Cela souligne l'importance des espaces verts comme des lieux sociaux où les individus peuvent se rassembler et interagir, favorisant ainsi le lien social au sein de la communauté.
+
+3. **Rencontre (8,82%)** :
+   - **Effectif** : 9 personnes
+   - **Interprétation** : Un pourcentage notable de répondants (8,82%) valorise la fonction des espaces verts en tant que lieux de rencontre. Cela peut indiquer une reconnaissance de l'importance de l'interaction sociale dans ces espaces, bien que cette perception soit inférieure à celle des bénéfices combinés de détente et de rencontre.
+
+4. **Détente/Rencontre/Réduction du bruit (6,86%)** :
+   - **Effectif** : 7 personnes
+   - **Interprétation** : Ce groupe souligne un bénéfice multifonctionnel des espaces verts, où les répondants voient une synergie entre détente, rencontre et réduction du bruit, ce qui renforce l'idée que ces espaces peuvent jouer un rôle essentiel dans l'amélioration de la qualité de vie.
+
+5. **Détente/Réduction du bruit (0,98%)** :
+   - **Effectif** : 1 personne
+   - **Interprétation** : Ce bénéfice est très peu mentionné, ce qui peut indiquer que les répondants ne perçoivent pas la réduction du bruit comme un avantage majeur des espaces verts.
+
+6. **Autre (14,71%)** :
+   - **Effectif** : 15 personnes
+   - **Interprétation** : Un nombre significatif de répondants a mentionné d'autres bénéfices, ce qui pourrait signaler une variété de perceptions et d'attentes non couvertes par les catégories proposées. Cela mérite une attention particulière pour explorer ces bénéfices supplémentaires.
+
+7. **Réduction du bruit (0,98%)** :
+   - **Effectif** : 1 personne
+   - **Interprétation** : La faible mention de la réduction du bruit comme bénéfice indique qu'il pourrait être moins reconnu par les utilisateurs d'espaces verts, ce qui pourrait suggérer une opportunité d'amélioration pour les concepteurs d'espaces publics.
+
+8. **Rencontre/Réduction du bruit (2,94%)** :
+   - **Effectif** : 3 personnes
+   - **Interprétation** : Bien que ce groupe soit peu représenté, il indique qu'il existe une prise de conscience des bénéfices combinés de ces espaces.
+
+### Conclusion
+Les résultats montrent que les répondants perçoivent principalement les espaces verts comme des lieux favorisant la détente et les rencontres, mais il existe également un intérêt pour d'autres bénéfices qui méritent d'être explorés.
+
+```{r communauter}
+`benefices des espace vert`
+```
+
+## Correlation en les variable
+Interprétation du Heatmap des Corrélations
+Le graphique fourni est un heatmap qui montre les coefficients de corrélation entre différentes variables relatives à l'implication communautaire, au niveau d'éducation, à la fréquence de visites, à l'âge, au sexe, à l'évaluation des espaces verts, aux bénéfices des espaces verts, à l'activité générale, et aux raisons pour lesquelles certaines personnes ne visitent pas les espaces.
+
+##Observations Clés :
+1. **Corrélations Négatives Fortes :**
+
+implication_communauter et implication_autoriser : Un coefficient de corrélation de -0.82 suggère une forte corrélation négative entre ces deux variables. Cela pourrait indiquer que lorsque l'implication communautaire augmente, l'implication autorisée diminue significativement, ou vice versa.
+
+2. **Corrélations Positives Fortes :**
+
+- **espace_visiter et autreprofesionr :** Un coefficient de corrélation de 1 indique une corrélation positive parfaite entre ces deux variables. Cela pourrait signifier que les professionnels ont tendance à visiter les espaces plus fréquemment.
+
+- **evaluation_etat_espaces_vertsr et benefices_espaces_vertsr :** Un coefficient de corrélation de 1 montre une corrélation positive parfaite, suggérant que ceux qui évaluent bien l'état des espaces verts perçoivent également des bénéfices significatifs de ces espaces.
+
+3. **Corrélations Modérées à Faibles** :
+
+- **sexer et autreprofesionr :** Une corrélation négative de -0.38 montre une relation inverse modérée entre le sexe et la profession. Cela pourrait indiquer que certaines professions sont dominées par un sexe particulier.
+
+### Implications Pratiques :
+1. **Implication Communautaire et Autorisée :**
+
+- Les efforts visant à augmenter l'implication communautaire doivent tenir compte de son impact potentiel sur l'implication autorisée et vice versa.
+
+2. **Espaces Visités et Profession :**
+
+- Les campagnes de promotion des espaces verts pourraient cibler des groupes professionnels spécifiques pour augmenter la fréquentation.
+
+3. **Evaluation des Espaces Verts :**
+
+- Améliorer l'état des espaces verts pourrait directement augmenter la perception des bénéfices par les utilisateurs.
+
+4. **Genre et Profession :**
+
+- Les politiques de diversité de genre dans certaines professions pourraient influencer la fréquentation des espaces verts.
+
+### Conclusion
+Ce heatmap des corrélations permet de visualiser rapidement les relations entre différentes variables, facilitant ainsi l'identification des corrélations fortes ou faibles qui peuvent guider les décisions stratégiques. Utiliser ces informations peut aider à mieux comprendre les dynamiques entre différentes caractéristiques et comportements des utilisateurs dans le contexte de l'implication communautaire et de l'utilisation des espaces verts.
+```{r heatmap de corelation}
+`correlation entre variable`
+```
+
+## Conclusion Finale sur le Projet d'Analyse des Espaces Verts
+
+Ce projet d'analyse a permis d'explorer la perception des utilisateurs concernant les espaces verts dans la commune. À travers une collecte de données qualitative et quantitative, nous avons pu dégager des informations cruciales sur les motivations, les attentes et les comportements des usagers. Voici les points clés qui émergent de cette étude :
+
+1. **Importance des Espaces Verts** :
+   Les espaces verts sont perçus comme essentiels pour le bien-être des citoyens, principalement en tant que lieux de détente et de rencontre. Cela souligne la nécessité de maintenir et de développer ces espaces pour favoriser la santé mentale et sociale de la communauté.
+
+2. **Bénéfices Multifonctionnels** :
+   Les résultats montrent que les usagers reconnaissent plusieurs bénéfices associés aux espaces verts, notamment la détente, la réduction du bruit et les interactions sociales. Cela indique que ces lieux jouent un rôle multifonctionnel dans la vie quotidienne des citoyens.
+
+3. **Perceptions Variées** :
+   Il existe une diversité d'opinions concernant l'utilisation et l'accessibilité des espaces verts. Certains utilisateurs ont exprimé des préoccupations quant à l'absence d'espaces adéquats et au manque d'intérêt pour les activités proposées. Cela démontre l'importance d'écouter et de répondre aux besoins variés des membres de la communauté.
+
+4. **Rôle des Autorités et de la Communauté** :
+   L'analyse révèle que l'implication des autorités et des communautés est cruciale pour le succès des initiatives liées aux espaces verts. Les résultats indiquent un manque d'engagement de certaines autorités, ce qui pourrait nuire à l'entretien et à la promotion de ces espaces.
+
+5. **Recommendations pour l'Amélioration** :
+   Sur la base des résultats, plusieurs recommandations peuvent être formulées pour améliorer l'accès et la qualité des espaces verts :
+   - **Aménagement participatif** : Impliquer les citoyens dans le processus de planification et d'aménagement des espaces verts pour répondre à leurs besoins spécifiques.
+   - **Programmes de sensibilisation** : Développer des programmes éducatifs visant à promouvoir l'utilisation des espaces verts et leurs bénéfices.
+   - **Augmenter l'accessibilité** : Identifier et éliminer les obstacles qui empêchent l'accès aux espaces verts, notamment en améliorant les infrastructures de transport et en créant des espaces adaptés pour tous.
+
+## Conclusion Globale
+Ce projet met en lumière l'importance cruciale des espaces verts dans le tissu social et le bien-être des citoyens. Les résultats obtenus appellent à une action concertée de la part des autorités locales et de la communauté pour garantir que ces espaces continuent de servir de refuges et de lieux d'interaction sociale. En intégrant les suggestions et en répondant aux préoccupations des utilisateurs, nous pouvons améliorer la qualité de vie au sein de notre commune et favoriser un environnement sain et inclusif.
+

@@ -1,0 +1,159 @@
+---
+title: "perception"
+author: "GANDAHO GENIEL I.M."
+date: "2024-10-12"
+output: 
+  html_document: 
+    toc: true
+    theme: paper
+    fig_width: 6
+    fig_height: 6
+    highlight: monochrome
+    fig_caption: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(readr)
+library(openxlsx)
+library(questionr)
+library(tidyverse)
+library(dplyr)
+library(RColorBrewer)
+library(ggplot2)
+library(tidyverse)
+library(ggplot2)
+library(carData)
+library(car)
+library(officer)
+library(tidyr)
+library(rmarkdown)
+library(flextable)
+library(fBasics)
+
+
+
+
+Cartographie_et_perception_des_services_écosystémiques_all_versions_labels_2024_07_08_14_45_00_1_ <- read_excel("H:/Mon Drive/Documents/HP ELITEBOOK/R/TRAVAUX-R/data/perception_espace_vert/Cartographie_et_perception_des_services_écosystémiques_-_all_versions_-_labels_-_2024-07-08-14-45-00 (1).xlsx")
+df<-Cartographie_et_perception_des_services_écosystémiques_all_versions_labels_2024_07_08_14_45_00_1_
+df2<-df%>%select(-1,-2,-3,-5,-6,-58,-59,-60,-61,-62,-63,-64,-65,-66,-67,-68,-69,-70)
+
+# Créer un vecteur contenant les nouveaux noms de variables
+new_names <- c("arrondissement", "age", "sexe", "niveau_education", "autre_education",
+               "profession", "autre_profession", "frequence_visite", "raison_non_visite",
+               "autre_raison", "espace_visite", "activite_generale", "activite_promenade",
+               "activite_sports", "activite_pique_nique", "activite_lecture",
+               "activite_observation", "activite_autre", "autre_activite",
+               "benefices_espaces_verts", "benefice_loisir_detente", "benefice_rencontre_sociale",
+               "benefice_reduction_bruit", "benefice_autre", "autre_benefice",
+               "services_ecosystemiques", "service_loisir_detente", "service_rencontre_sociale",
+               "service_reduction_bruit", "service_autre", "autre_service",
+               "evaluation_etat_espaces_verts", "plaisir_parc", "plaisir_cadre_naturel",
+               "plaisir_paysage", "plaisir_ambiance_paisible", "plaisir_equipements",
+               "plaisir_evenements", "plaisir_rencontre", "plaisir_autre", "autre_plaisir",
+               "amelioration_espaces_verts", "amelioration_bancs_aires", "amelioration_proprete",
+               "amelioration_espaces_jeux", "amelioration_securite", "amelioration_arbre_vegetation",
+               "amelioration_autre", "autre_amelioration", "participation_initiatives",
+               "implication_autorites", "implication_communaute")
+
+df3<- df2%>%rename_with(~ new_names)
+colnames(df3)
+labels(df3)
+
+df2<-df2%>%rename(sexe=`Quel est votre sexe ?`,age=`Quel est votre âge ?`,niveduc =`Quel est votre niveau d'éducation ?`,profession = `Quelle est votre profession ?`,freqvisite=`À quelle fréquence visitez-vous les espaces verts de Parakou ?`,raisonviste=`Quelle est la raison qui vous empêche de visiter les espaces verts de Parakou ?`,
+                  espacvisite_plus=`Quel(s) espace(s) vert(s) visitez-vous le plus souvent ? (Nom ou description)`,
+                  activpratiq=`Quelles activités pratiquez-vous généralement dans les espaces verts ?`)
+
+df_frqplus<-df2%>%group_by(freqvisite)%>%summarise(effectif=n())
+df_age<-df3%>%group_by(age)%>%summarise(effectif=n())
+df_frqvisit<-df3%>%group_by(frequence_visite)%>%summarise(effectif=n())
+
+df_raison<-df2%>%group_by(raisonviste)%>%summarise(effectif=n())
+df_frqplus_sexe<-df2%>%group_by(freqvisite,sexe)%>%summarize(Count=n(),.groups = 'drop')%>%pivot_wider(names_from =sexe , values_from = Count, values_fill = list(Count = 0))
+df_frqplus_niveduc<-df2%>%group_by(freqvisite,niveduc)%>%summarize(Count=n(),.groups = 'drop')%>%pivot_wider(names_from =niveduc , values_from = Count, values_fill = list(Count = 0))
+df_frqplus_espacevisite_plus<-df3%>%group_by(frequence_visite,espace_visite)%>%summarize(Count=n(),.groups = 'drop')%>%pivot_wider(names_from =espace_visite , values_from = Count, values_fill = list(Count = 0))
+df_niveduc<-df2%>%group_by(niveduc)%>%summarise(effectif=n())
+
+df3$espace_visite <-factor(df3$espace_visite, labels=c("BIO GUERRA","BIO GUERRA/PAPINI","BIO GUERRA/PAPINI","BIO GUERRA","COTEB","Carrefour al houda","Devant Kognonsa","Devant confort line","FORET","COTEB","FORET/COTEB","FORET","HUBERT MAGA","HUBERT MAGA","HUBERT MAGA/COTEB","Devant confort line","PAPINI","HUBERT MAGA","PAPINI","BIO GUERRA/PAPINI","BIO GUERRA/PAPINI","COTEB","COTEB","COTEB","COTEB/FORET","HUBERT MAGA/COTEB","HUBERT MAGA/COTEB","COTEB/FORET"
+))
+df3$sexer<-as.numeric(factor(df3$sexe,labels = c(0,1)))
+df3$ager<-as.numeric(factor(df3$age,labels = c(1,2,3,0)))
+df3$frequence_visiter<-as.numeric(factor(df3$frequence_visite,labels = c(0,1,2,3,4,5)))
+df3$espace_visiter<-as.numeric(factor(df3$espace_visite,labels = c(0,1,2,3,4,5,6,7,8,9,10,11)))
+df3visite<-df3%>%group_by(espace_visite)%>%summarise(Effectif=n())
+
+
+df_sexe_espacevisite_plus<-df2%>%group_by(espacvisite_plus,sexe)%>%summarize(Count=n(),.groups = 'drop')%>%pivot_wider(names_from =sexe , values_from = Count, values_fill = list(Count = 0))
+
+
+
+#<-------------------------------visite-------------------------------->
+
+df3visite<-df3%>%group_by(espace_visite)%>%summarise(Effectif=n())
+ft1<-flextable(df3visite) 
+ft1<- bold(ft1, part = "header")
+ft1 <- align(ft1, align = "center", part = "header")
+#ft1 <- align(ft1, align = "ajust", part = "body")
+espace_visite<-autofit(ft1)
+##sexe
+sexe<-df3%>%group_by(sexe)%>%summarise(Effectif=n())
+total<-sexe%>%summarise(across(where(is.numeric),sum,na.rm=TRUE))%>%mutate(sexe="Total")
+sexe<-bind_rows(sexe,total)
+sexe<-flextable(sexe)
+sexe<- bold(sexe, part = "header")
+sexe<- align(sexe, align = "center", part = "header")
+sexe<- bold(sexe, part = "foot")
+sexe<-autofit(sexe)
+
+#<----------Teste de correlation between freq visite and space------------------
+correlationtest<-cor.test(df3$espace_visiter, df3$frequence_visiter,
+         method = c("pearson", "kendall", "spearman"),
+         exact = NULL, conf.level = 0.95, continuity = FALSE)
+
+```
+
+
+# ANALYSE DE LA PERCERPTION
+## Les Variables Utiliser lors de l'analyse
+
+### Variable principale :
+
+**Espace_visite **: 
+Cet indicateur mesure les espaces verts visités par les participants a l'enquête. Le tableau ci-dessus récapitule les effectifs (nombre de visiteurs) par espace vert sur un échantillon de 100 personnes.
+
+```{r espace visite}
+espace_visite
+
+```
+
+### Analyse descriptive des visites par espace vert
+Le tableau montre que les espaces verts les plus visités sont : **BIO GUERRA avec 19 visiteurs, PAPINI avec 16 visiteurs, COTEB avec 12 visiteurs**. Les autres espaces (comme Carrefour al houda, Devant Kognonsa, FORET, etc.) semblent avoir moins d'affluence, avec des effectifs variant entre 1 et 5 visiteurs.
+
+### Observations
+BIO GUERRA et PAPINI sont les espaces verts les plus attractifs, peut-être en raison de leur emplacement ou des activités qu'ils proposent. COTEB, bien que moins fréquenté individuellement, semble être un lieu commun, puisque plusieurs visiteurs le combinent avec d'autres espaces (FORET, HUBERT MAGA). Certains espaces, comme Devant Kognonsa ou Devant Confort Line, n'attirent qu'une poignée de visiteurs, ce qui peut indiquer un manque d'intérêt ou des problèmes d'accès ou de visibilité.
+
+
+##Les Variables Utiliser lors de l'analyse
+
+Lors de cette enquete 102 individue ont ete interroger dont 50 Femmes et 52 Hommes comme le montre le tableau 1 ci dessous 
+
+```{r sexe}
+sexe
+```
+
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r correllation1}
+correlationtest
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
