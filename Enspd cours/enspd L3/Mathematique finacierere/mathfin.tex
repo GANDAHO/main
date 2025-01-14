@@ -1,0 +1,188 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+
+% Couleurs personnalisées
+\definecolor{maincolor}{RGB}{0, 102, 204}
+\definecolor{accentcolor}{RGB}{255, 140, 0}
+
+% Styles de titre
+\setbeamercolor{title}{fg=white, bg=maincolor}
+\setbeamercolor{frametitle}{fg=white, bg=maincolor}
+\setbeamercolor{block title}{bg=accentcolor, fg=white}
+\setbeamercolor{block body}{bg=white, fg=black}
+
+\title[Formules Mathématiques Financières]{\textbf{Formules Essentielles de Mathématiques Financières}}
+\author{Géniel Gandaho}
+\institute{Université de Parakou \\ École Nationale de Statistique, de Planification et de Démographie}
+\date{\today}
+
+\begin{document}
+
+% Page de titre
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Plan de la présentation
+\begin{frame}{Plan de la présentation}
+    \tableofcontents
+\end{frame}
+
+% Section : Intérêt Simple
+\section{Intérêt Simple}
+\begin{frame}{Formules d'Intérêt Simple}
+    \begin{block}{Formules principales}
+        \textbf{Intérêt total :}
+        \[
+        I = C \cdot t \cdot T
+        \]
+        \textbf{Valeur acquise (capital final) :}
+        \[
+        VA = C + I = C \cdot (1 + t \cdot T)
+        \]
+    \end{block}
+    \begin{block}{Cas spécifiques}
+        \begin{itemize}
+            \item Durée en mois :
+            \[
+            I = \frac{C \cdot t \cdot m}{1200}
+            \]
+            \item Durée en jours :
+            \[
+            I = \frac{C \cdot t \cdot n}{36000}
+            \]
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+% Section : Intérêt Composé
+\section{Intérêt Composé}
+\begin{frame}{Formules d'Intérêt Composé}
+    \begin{block}{Formules principales}
+        \textbf{Valeur acquise :}
+        \[
+        VA = C \cdot (1 + t)^T
+        \]
+        \textbf{Valeur actuelle (capital initial) :}
+        \[
+        C = \frac{VA}{(1 + t)^T}
+        \]
+        \textbf{Taux équivalent :}
+        \[
+        1 + t_1 = (1 + t_2)^n
+        \]
+    \end{block}
+\end{frame}
+
+% Section : Intérêt Continu
+\section{Intérêt Continu}
+\begin{frame}{Formules d'Intérêt Continu}
+    \begin{block}{Formules principales}
+        \textbf{Valeur acquise :}
+        \[
+        VA = C \cdot e^{t \cdot T}
+        \]
+        \textbf{Valeur actuelle :}
+        \[
+        C = \frac{VA}{e^{t \cdot T}}
+        \]
+    \end{block}
+\end{frame}
+
+% Section : Escompte
+\section{Escompte}
+\begin{frame}{Formules d'Escompte Simple}
+    \begin{block}{Formules principales}
+        \textbf{Montant de l'escompte :}
+        \[
+        E = C \cdot t \cdot T
+        \]
+        \textbf{Valeur actuelle :}
+        \[
+        VA = C - E = C \cdot (1 - t \cdot T)
+        \]
+    \end{block}
+\end{frame}
+
+% Section : Annuités
+\section{Annuités}
+\begin{frame}{Formules des Annuités}
+    \begin{block}{Valeur actuelle des annuités constantes}
+        \[
+        VA = R \cdot \frac{1 - (1 + t)^{-n}}{t}
+        \]
+    \end{block}
+    \begin{block}{Valeur acquise des annuités constantes}
+        \[
+        VA = R \cdot \frac{(1 + t)^n - 1}{t}
+        \]
+    \end{block}
+\end{frame}
+
+% Section : Évaluation des Investissements
+\section{Évaluation des Investissements}
+\begin{frame}{Formules d'Évaluation des Investissements}
+    \begin{block}{Valeur actuelle nette (VAN)}
+        \[
+        VAN = \sum_{t=0}^n \frac{CF_t}{(1 + r)^t} - C_0
+        \]
+    \end{block}
+    \begin{block}{Taux interne de rendement (TIR)}
+        \[
+        \sum_{t=0}^n \frac{CF_t}{(1 + TIR)^t} = C_0
+        \]
+    \end{block}
+\end{frame}
+
+% Examen Final
+\section{Examen Final}
+\begin{frame}{Exercice 1 : Intérêt Simple (5 points)}
+Un capital de \( 25,000 \, \text{F} \) est placé à un taux annuel de \( 8\% \) pendant \( 4 \, \text{ans} \).
+\begin{enumerate}
+    \item Calculez l’intérêt produit.
+    \item Déterminez la valeur acquise.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Exercice 2 : Intérêt Composé (5 points)}
+Un montant de \( 15,000 \, \text{F} \) est placé à un taux d’intérêt composé annuel de \( 5\% \). Après combien d’années le capital atteindra-t-il \( 20,000 \, \text{F} \) ?
+\end{frame}
+
+\begin{frame}{Exercice 3 : Annuités Constantes (6 points)}
+Une entreprise rembourse \( 10,000 \, \text{F} \) chaque année pendant \( 7 \, \text{ans} \), à un taux d’intérêt annuel de \( 6\% \).
+\begin{enumerate}
+    \item Calculez la valeur actuelle des paiements.
+    \item Déterminez la valeur acquise.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Corrigé Type}
+\textbf{Exercice 1 : Intérêt Simple} \\
+\[
+I = C \cdot t \cdot T = 25,000 \cdot 0.08 \cdot 4 = 8,000 \, \text{F}
+\]
+\[
+VA = C + I = 25,000 + 8,000 = 33,000 \, \text{F}
+\]
+\end{frame}
+
+\begin{frame}{Corrigé Type (Suite)}
+\textbf{Exercice 2 : Intérêt Composé} \\
+\[
+VA = C \cdot (1 + t)^T \implies 20,000 = 15,000 \cdot (1.05)^T
+\]
+\[
+T = \frac{\ln(1.3333)}{\ln(1.05)} \approx 5.89 \, \text{ans}
+\]
+\end{frame}
+
+\begin{frame}{Merci !}
+    \centering
+    \Huge Des questions ?
+\end{frame}
+
+\end{document}
